@@ -1,19 +1,23 @@
 FROM gliderlabs/alpine
 MAINTAINER Timothy
 
-RUN apk add --update redis && \
-    rm -rf /var/cache/apk/* && \
-    mkdir /data && \
-    chown -R redis:redis /data && \
-    sed -i 's#logfile /var/log/redis/redis.log#logfile ""#i' /etc/redis.conf && \
-    sed -i 's#daemonize yes#daemonize no#i' /etc/redis.conf && \
-    sed -i 's#dir /var/lib/redis/#dir /data#i' /etc/redis.conf && \
-    echo -e "# placeholder for local options\n" > /etc/redis-local.conf && \
-    echo -e "include /etc/redis-local.conf\n" >> /etc/redis.conf
+RUN apk --update add \
+    bash nano curl \
+    redis && \
+    rm -rf /var/cache/apk/*
 
-VOLUME ["/data"]
+RUN curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64" && \
+    chmod +x /usr/local/bin/gosu
 
-USER redis
+RUN mkdir /data
+RUN chown redis:redis /data
+
+ADD docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+WORKDIR /data
 EXPOSE 6379
+VOLUME /data
 
-ENTRYPOINT ["redis-server"]
+CMD [ "redis-server" ]
