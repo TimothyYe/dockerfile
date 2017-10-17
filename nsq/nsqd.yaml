@@ -1,0 +1,42 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nsqd
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nsqd
+    spec:
+      containers:
+      - name: nsqd
+        image: registry.orientsoft.cn/other/nsq:latest
+        command: ["/nsqd"]
+        args: ["--lookupd-tcp-address=nsqlookupd:4160", "-broadcast-address", "192.168.0.73", "-tcp-address", "0.0.0.0:30150", "-http-address", "0.0.0.0:30151"]
+        ports:
+        - containerPort: 30150
+          name: port-4150
+        - containerPort: 30151
+          name: port-4151
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsqd
+spec:
+  selector:
+    app: nsqd
+  ports:
+    - protocol: TCP
+      port: 30150
+      targetPort: 30150
+      nodePort: 30150
+      name: 4150-port
+    - protocol: TCP
+      port: 30151
+      targetPort: 30151
+      nodePort: 30151
+      name: 4151-port
+  type: NodePort
