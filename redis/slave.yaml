@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis-slave
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: redis
+        role: slave
+        tier: backend
+    spec:
+      containers:
+      - name: slave
+        image: registry.orientsoft.cn/google_containers/gb-redisslave:v1
+        resources:
+          requests:
+            cpu: 200m
+            memory: 100Mi
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-slave
+  labels:
+    app: redis
+    role: slave
+    tier: backend
+spec:
+  ports:
+  - port: 6379
+    nodePort: 32380
+  type: NodePort
+  selector:
+    app: redis
+    role: slave
+    tier: backend
