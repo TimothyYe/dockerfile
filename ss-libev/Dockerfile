@@ -1,7 +1,7 @@
 FROM alpine as builder
 MAINTAINER Timothy <yexiaozhou2003@gmail.com>
 
-ARG SS_VER=3.3.0
+ARG SS_VER=3.3.2
 ARG SS_URL=https://github.com/shadowsocks/shadowsocks-libev/releases/download/v$SS_VER/shadowsocks-libev-$SS_VER.tar.gz
 
 RUN set -ex && \
